@@ -165,7 +165,7 @@ nav a:hover {
 }
 
 .hero-header {
-  text-align: center;
+  text-align: left;
   margin-bottom: 0;
 }
 
@@ -331,7 +331,7 @@ nav a:hover {
   background: var(--surface-1);
   backdrop-filter: blur(8px);
   border-radius: 20px;
-  padding: 54px;
+  padding: 40px;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow);
 }
