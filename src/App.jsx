@@ -2,7 +2,7 @@ import { useState } from 'react';
 import logo from './assets/react.svg';
 import './index.css';
 import './main.jsx';
-import { RocketIcon, GiftIcon, StarIcon, MoneyIcon, MapIcon, ChatIcon, QuestionIcon, ClockIcon, ShieldIcon, CheckCircleIcon } from './components/Icons';
+import { RocketIcon, GiftIcon, StarIcon, MoneyIcon, MapIcon, ChatIcon, QuestionIcon, ClockIcon, ShieldIcon, CheckCircleIcon, CompletedIcon, RocketLaunchIcon, ClockUpcomingIcon, GlobeIcon } from './components/Icons';
 
 function App() {
   const [walletAddress, setWalletAddress] = useState('');
@@ -50,64 +50,72 @@ function App() {
         <div className="main-container">
             {/* Hero Section */}
             <section className="hero">
-                <div className="hero-content">
-                    <h1><RocketIcon size={32} className="inline-icon" /> ANVI Token Airdrop is Live!</h1>
+
+                <div className="hero-header">
+                    <h1>ANVI Token Airdrop is Live!</h1>
                     <p className="hero-subtitle">Join the future of decentralized finance and claim your ANVI tokens. Exclusive limited-time offer for early supporters!</p>
-                    
-                    {/* Statistics */}
-                    <div className="hero-stats">
-                        <div className="stat-item">
-                            <div className="stat-number">$2.5M</div>
-                            <div className="stat-label">Total Airdrop Value</div>
-                        </div>
-                        <div className="stat-item">
-                            <div className="stat-number">50K</div>
-                            <div className="stat-label">Eligible Users</div>
-                        </div>
-                        <div className="stat-item">
-                            <div className="stat-number">7</div>
-                            <div className="stat-label">Days Remaining</div>
+                </div>
+
+                <div className="hero-content">
+                    <div className="hero-left">
+                        {/* Statistics */}
+                        <div className="hero-stats">
+                            <h3>Campaign Statistics</h3>
+                            <div className="stats-grid">
+                                <div className="stat-item">
+                                    <div className="stat-number">$2.5M</div>
+                                    <div className="stat-label">Total Airdrop Value</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-number">50K</div>
+                                    <div className="stat-label">Eligible Users</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-number">7</div>
+                                    <div className="stat-label">Days Remaining</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 
-                {/* Airdrop Card */}
-                <div className="airdrop-card">
-                    <div className="card-header">
-                            <h2><GiftIcon size={24} className="inline-icon" /> Claim Your ANVI Tokens</h2>
-                            <p>You are eligible for <span className="highlight">5,000 ANVI tokens</span></p>
-                    </div>
-                    
-                    <div className="token-info">
-                        <div className="token-icon">
-                            <img src="/1inch.svg" alt="ANVI Token" />
-                        </div>
-                        <div className="token-details">
-                            <div className="token-amount">5,000 ANVI</div>
-                                <div className="token-value">≈ $250 USD</div>
-                                <div className="token-bonus">+ 20% Early Supporter Bonus</div>
-                        </div>
-                    </div>
-                    
-                        <button className="claim-button" id="claimButton">
-                            <RocketIcon size={16} className="inline-icon" />
-                            Claim Now
-                        </button>
-                    
-                    <div className="timer">
-                            <p><ClockIcon size={16} className="inline-icon" /> Airdrop ends in: <span id="countdown">07:23:19:45</span></p>
+                    {/* Airdrop Card */}
+                    <div className="airdrop-card">
+                        <div className="card-header">
+                                <h2><GiftIcon size={24} className="inline-icon" /> Claim Your ANVI Tokens</h2>
+                                <p>You are eligible for <span className="highlight">5,000 ANVI tokens</span></p>
                         </div>
                         
-                        <div className="eligibility-check">
-                            <p><CheckCircleIcon size={16} className="inline-icon" /> Eligibility Verified</p>
-                            <p><ShieldIcon size={16} className="inline-icon" /> Smart Contract Audited</p>
+                        <div className="token-info">
+                            <div className="token-icon">
+                                <img src="/1inch.svg" alt="ANVI Token" />
+                            </div>
+                            <div className="token-details">
+                                <div className="token-amount">5,000 ANVI</div>
+                                    <div className="token-value">≈ $250 USD</div>
+                                    <div className="token-bonus">+ 20% Early Supporter Bonus</div>
+                            </div>
+                        </div>
+                        
+                            <button className="claim-button" id="claimButton">
+                                {/* <RocketIcon size={16} className="inline-icon" /> */}
+                                Claim Now
+                            </button>
+                        
+                        <div className="timer">
+                                <p><ClockIcon size={16} className="inline-icon" /> Airdrop ends in: <span id="countdown">07:23:19:45</span></p>
+                            </div>
+                            
+                            <div className="eligibility-check">
+                                <p><CheckCircleIcon size={16} className="inline-icon" /> Eligibility Verified</p>
+                                <p><ShieldIcon size={16} className="inline-icon" /> Smart Contract Audited</p>
+                            </div>
                         </div>
                     </div>
-                </div>
             </section>
             
             {/* Features Section */}
             <section className="features">
-                <h2 className="section-title"><StarIcon size={32} className="inline-icon" /> Why Choose ANVI?</h2>
+                <h2 className="section-title">Why Choose ANVI?</h2>
                 <div className="features-grid">
                 <div className="feature">
                     <div className="feature-icon">
@@ -196,78 +204,123 @@ function App() {
             
             {/* Roadmap Section */}
             <section className="roadmap">
-                <h2 className="section-title"><MapIcon size={32} className="inline-icon" /> Roadmap</h2>
+                <div className="roadmap-header">
+                    <h2 className="section-title"><MapIcon size={32} className="inline-icon" /> Roadmap</h2>
+                    <p className="roadmap-subtitle">Our journey to revolutionize decentralized finance</p>
+                </div>
                 <div className="roadmap-timeline">
                     <div className="roadmap-item completed">
-                        <div className="roadmap-date">Q1 2024</div>
+                        <div className="roadmap-marker">
+                            <div className="marker-icon">
+                                <CompletedIcon size={20} />
+                            </div>
+                        </div>
                         <div className="roadmap-content">
+                            <div className="roadmap-header-content">
+                                <div className="roadmap-date">Q1 2024</div>
+                                <div className="roadmap-status completed-status">Completed</div>
+                            </div>
                             <h3>Project Launch</h3>
-                            <p>• Smart contract development completed<br/>• Security audit passed<br/>• Community building started</p>
+                            <div className="roadmap-features">
+                                <div className="feature-item">
+                                    <div className="feature-dot"></div>
+                                    <span>Smart contract development completed</span>
+                                </div>
+                                <div className="feature-item">
+                                    <div className="feature-dot"></div>
+                                    <span>Security audit passed</span>
+                                </div>
+                                <div className="feature-item">
+                                    <div className="feature-dot"></div>
+                                    <span>Community building started</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    
                     <div className="roadmap-item current">
-                        <div className="roadmap-date">Q2 2024</div>
+                        <div className="roadmap-marker">
+                            <div className="marker-icon current">
+                                <RocketLaunchIcon size={20} />
+                            </div>
+                        </div>
                         <div className="roadmap-content">
+                            <div className="roadmap-header-content">
+                                <div className="roadmap-date">Q2 2024</div>
+                                <div className="roadmap-status current-status">In Progress</div>
+                            </div>
                             <h3>Airdrop Campaign</h3>
-                            <p>• Airdrop campaign launched<br/>• Token distribution<br/>• Exchange listing applications</p>
+                            <div className="roadmap-features">
+                                <div className="feature-item">
+                                    <div className="feature-dot current"></div>
+                                    <span>Airdrop campaign launched</span>
+                                </div>
+                                <div className="feature-item">
+                                    <div className="feature-dot current"></div>
+                                    <span>Token distribution</span>
+                                </div>
+                                <div className="feature-item">
+                                    <div className="feature-dot current"></div>
+                                    <span>Exchange listing applications</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="roadmap-item">
-                        <div className="roadmap-date">Q3 2024</div>
+                    
+                    <div className="roadmap-item upcoming">
+                        <div className="roadmap-marker">
+                            <div className="marker-icon upcoming">
+                                <ClockUpcomingIcon size={20} />
+                            </div>
+                        </div>
                         <div className="roadmap-content">
+                            <div className="roadmap-header-content">
+                                <div className="roadmap-date">Q3 2024</div>
+                                <div className="roadmap-status upcoming-status">Upcoming</div>
+                            </div>
                             <h3>Ecosystem Expansion</h3>
-                            <p>• DeFi protocol integration<br/>• NFT marketplace development<br/>• Cross-chain bridging</p>
+                            <div className="roadmap-features">
+                                <div className="feature-item">
+                                    <div className="feature-dot upcoming"></div>
+                                    <span>DeFi protocol integration</span>
+                                </div>
+                                <div className="feature-item">
+                                    <div className="feature-dot upcoming"></div>
+                                    <span>NFT marketplace development</span>
+                                </div>
+                                <div className="feature-item">
+                                    <div className="feature-dot upcoming"></div>
+                                    <span>Cross-chain bridging</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="roadmap-item">
-                        <div className="roadmap-date">Q4 2024</div>
+                    
+                    <div className="roadmap-item upcoming">
+                        <div className="roadmap-marker">
+                            <div className="marker-icon upcoming">
+                                <GlobeIcon size={20} />
+                            </div>
+                        </div>
                         <div className="roadmap-content">
+                            <div className="roadmap-header-content">
+                                <div className="roadmap-date">Q4 2024</div>
+                                <div className="roadmap-status upcoming-status">Upcoming</div>
+                            </div>
                             <h3>Global Expansion</h3>
-                            <p>• Major exchange listings<br/>• Institutional partnerships<br/>• Mobile app release</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
-            {/* Testimonials Section */}
-            <section className="testimonials">
-                <h2 className="section-title"><ChatIcon size={32} className="inline-icon" /> Testimonials</h2>
-                <div className="testimonials-grid">
-                    <div className="testimonial">
-                        <div className="testimonial-content">
-                            <p>"ANVI's airdrop process was very smooth, user-friendly interface, and simple operation. Token distribution was also timely!"</p>
-                        </div>
-                        <div className="testimonial-author">
-                            <div className="author-avatar">👨‍💻</div>
-                            <div className="author-info">
-                                <div className="author-name">John Smith</div>
-                                <div className="author-title">DeFi Investor</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="testimonial">
-                        <div className="testimonial-content">
-                            <p>"As an early supporter, I have great confidence in ANVI's technology and team, looking forward to future development!"</p>
-                        </div>
-                        <div className="testimonial-author">
-                            <div className="author-avatar">👩‍🚀</div>
-                            <div className="author-info">
-                                <div className="author-name">Sarah Johnson</div>
-                                <div className="author-title">Blockchain Enthusiast</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="testimonial">
-                        <div className="testimonial-content">
-                            <p>"The smart contract audit report was very detailed, security measures are in place, making me feel confident about participating in the airdrop."</p>
-                        </div>
-                        <div className="testimonial-author">
-                            <div className="author-avatar">👨‍🔬</div>
-                            <div className="author-info">
-                                <div className="author-name">Dr. Michael Chen</div>
-                                <div className="author-title">Technical Expert</div>
+                            <div className="roadmap-features">
+                                <div className="feature-item">
+                                    <div className="feature-dot upcoming"></div>
+                                    <span>Major exchange listings</span>
+                                </div>
+                                <div className="feature-item">
+                                    <div className="feature-dot upcoming"></div>
+                                    <span>Institutional partnerships</span>
+                                </div>
+                                <div className="feature-item">
+                                    <div className="feature-dot upcoming"></div>
+                                    <span>Mobile app release</span>
+                                </div>
                             </div>
                         </div>
                     </div>
