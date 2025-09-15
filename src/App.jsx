@@ -1,20 +1,24 @@
 import { useState, useEffect } from 'react';
-import { WagmiProvider, useDisconnect } from 'wagmi';
-import { useAppKit, useAppKitAccount } from '@reown/appkit/react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { RocketIcon, GiftIcon, StarIcon, MoneyIcon, MapIcon, ChatIcon, QuestionIcon, ClockIcon, ShieldIcon, CheckCircleIcon, CompletedIcon, RocketLaunchIcon, ClockUpcomingIcon, GlobeIcon } from './components/Icons';
-import { wagmiAdapter } from './appkit-config'; // 导入初始化配置
-import './appkit-config'; // 确保 AppKit 初始化
+import './appkit-config';
+import './index.css'
+
 
 function App() {
-  const { address, isConnected } = useAppKitAccount();
-  const { open } = useAppKit();
-  const { disconnect } = useDisconnect();
+  // Use native Solana wallet adapter hooks
+  const { publicKey, connected, disconnect } = useWallet();
+  const { setVisible } = useWalletModal();
+  
+  // Get address and connection status
+  const address = publicKey?.toString();
+  const isConnected = connected;
   const [balance, setBalance] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  // 当地址变化时更新余额
+  // Update balance when address changes
   useEffect(() => {
     const updateBalance = async () => {
       if (!address) return;
@@ -25,7 +29,7 @@ function App() {
         const balance = await connection.getBalance(publicKey);
         setBalance(balance / LAMPORTS_PER_SOL);
       } catch (error) {
-        console.error('获取余额错误:', error);
+        console.error('Error fetching balance:', error);
       } finally {
         setIsLoading(false);
       }
@@ -38,49 +42,163 @@ function App() {
     }
   }, [address, isConnected]);
 
-  // 连接钱包
+  // 监听钱包连接状态变化，恢复页面样式
+  useEffect(() => {
+    if (isConnected) {
+      // 钱包连接成功后恢复页面样式
+      document.body.style.paddingRight = '';
+      document.body.style.overflow = '';
+    }
+  }, [isConnected]);
+
+  // 监听弹框关闭，恢复页面样式
+  useEffect(() => {
+    const handleModalClose = () => {
+      // 延迟恢复，确保弹框完全关闭
+      setTimeout(() => {
+        document.body.style.paddingRight = '';
+        document.body.style.overflow = '';
+      }, 100);
+    };
+
+    // 监听点击事件，如果点击的是弹框外部，则关闭弹框
+    const handleClickOutside = (event) => {
+      if (event.target.classList.contains('wallet-adapter-modal-wrapper') ||
+          event.target.classList.contains('wallet-adapter-modal-container')) {
+        handleModalClose();
+      }
+    };
+
+    // 监听 ESC 键
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        handleModalClose();
+      }
+    };
+
+    // 使用 MutationObserver 监听弹框的创建
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) { // Element node
+            const modalWrapper = node.classList?.contains('wallet-adapter-modal-wrapper') ? node :
+                               node.querySelector?.('.wallet-adapter-modal-wrapper') ||
+                               node.classList?.contains('wallet-adapter-modal-container') ? node :
+                               node.querySelector?.('.wallet-adapter-modal-container');
+            
+            if (modalWrapper) {
+              // 确保弹框居中
+              modalWrapper.style.position = 'fixed';
+              modalWrapper.style.top = '0';
+              modalWrapper.style.left = '0';
+              modalWrapper.style.right = '0';
+              modalWrapper.style.bottom = '0';
+              modalWrapper.style.width = '100vw';
+              modalWrapper.style.height = '100vh';
+              modalWrapper.style.display = 'flex';
+              modalWrapper.style.alignItems = 'center';
+              modalWrapper.style.justifyContent = 'center';
+              modalWrapper.style.zIndex = '9999';
+              modalWrapper.style.background = 'rgba(0, 0, 0, 0.8)';
+              modalWrapper.style.margin = '0';
+              modalWrapper.style.padding = '0';
+            }
+          }
+        });
+      });
+    });
+
+    // 开始观察 DOM 变化
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
+  // Connect wallet
   const connectWallet = async () => {
     try {
-      await open();
+      setIsLoading(true);
+      // 防止页面跳动
+      document.body.style.paddingRight = window.innerWidth - document.documentElement.clientWidth + 'px';
+      document.body.style.overflow = 'hidden';
+      setVisible(true);
+      
+      // 确保弹框居中显示
+      setTimeout(() => {
+        const modalWrapper = document.querySelector('.wallet-adapter-modal-wrapper') || 
+                           document.querySelector('.wallet-adapter-modal-container') ||
+                           document.querySelector('[data-testid="wallet-adapter-modal"]');
+        
+        if (modalWrapper) {
+          modalWrapper.style.position = 'fixed';
+          modalWrapper.style.top = '0';
+          modalWrapper.style.left = '0';
+          modalWrapper.style.right = '0';
+          modalWrapper.style.bottom = '0';
+          modalWrapper.style.width = '100vw';
+          modalWrapper.style.height = '100vh';
+          modalWrapper.style.display = 'flex';
+          modalWrapper.style.alignItems = 'center';
+          modalWrapper.style.justifyContent = 'center';
+          modalWrapper.style.zIndex = '9999';
+          modalWrapper.style.background = 'rgba(0, 0, 0, 0.8)';
+          modalWrapper.style.margin = '0';
+          modalWrapper.style.padding = '0';
+        }
+      }, 100);
     } catch (error) {
-      console.error('连接钱包错误:', error);
+      console.error('Wallet connection error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // 断开钱包连接
+  // Disconnect wallet with confirmation
   const disconnectWallet = async () => {
-    try {
-      disconnect();
-      setIsSubmitted(false);
-    } catch (error) {
-      console.error('断开钱包连接错误:', error);
+    const confirmed = window.confirm('Are you sure you want to disconnect your wallet?');
+    if (confirmed) {
+      try {
+        await disconnect();
+        setIsSubmitted(false);
+      } catch (error) {
+        console.error('Wallet disconnection error:', error);
+      }
     }
   };
 
-  // 处理领取操作
+  // Handle claim operation
   const handleClaim = (e) => {
     e.preventDefault();
     if (isConnected) {
       setIsSubmitted(true);
-      alert('领取成功！您的PUMP代币将会在24小时内发送到您的钱包。');
+      alert('Claim successful! Your PUMP tokens will be sent to your wallet within 24 hours.');
     } else {
-      alert('请先连接钱包');
+      alert('Please connect your wallet first');
     }
   };
 
-  // 缩短钱包地址显示
+  // Shorten wallet address display
   const shortenAddress = (address) => {
     if (!address) return '';
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
 
   return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
-      <>
-        {/* 粒子背景 */}
-        <div id="particles-js"></div>
+    <>
+      {/* Particle Background */}
+      <div id="particles-js"></div>
 
-        {/* 头部 */}
+        {/* Header */}
         <header className="w-full bg-gray-900 text-white py-4">
           <div className="header-content max-w-7xl mx-auto flex justify-between items-center px-4">
             <div className="logo flex items-center">
@@ -92,64 +210,79 @@ function App() {
 
             <nav>
               <ul className="flex space-x-6">
-                <li><a href="#" className="hover:text-blue-400">首页</a></li>
-                <li><a href="#" className="hover:text-blue-400">关于</a></li>
-                <li><a href="#" className="hover:text-blue-400">代币经济学</a></li>
-                <li><a href="#" className="hover:text-blue-400">路线图</a></li>
-                <li><a href="#" className="hover:text-blue-400">常见问题</a></li>
+                <li><a href="#" className="hover:text-blue-400">Home</a></li>
+                <li><a href="#" className="hover:text-blue-400">About</a></li>
+                <li><a href="#" className="hover:text-blue-400">Tokenomics</a></li>
+                <li><a href="#" className="hover:text-blue-400">Roadmap</a></li>
+                <li><a href="#" className="hover:text-blue-400">FAQ</a></li>
               </ul>
             </nav>
 
-            <div className="wallet-connector">
+            <div className="wallet-connector flex items-center space-x-4">
+              
               {isConnected ? (
                 <div className="wallet-info flex items-center space-x-4">
-                  <span className="wallet-address bg-gray-700 px-3 py-1 rounded">{shortenAddress(address)}</span>
-                  <span className="balance bg-gray-700 px-3 py-1 rounded">{balance.toFixed(2)} SOL</span>
+                  <span className="balance bg-gray-700 px-3 py-1 rounded">{balance.toFixed(2)} PUMP</span>
                   <button
-                    className="disconnect-wallet bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                    className="disconnect-wallet text-white font-semibold transition-all duration-300 group"
                     onClick={disconnectWallet}
                   >
-                    断开连接
+                    <div className="relative flex items-center z-10">
+                      <div className="w-2 h-2 bg-white rounded-full mr-2 group-hover:animate-pulse"></div>
+                      {shortenAddress(address)}
+                    </div>
                   </button>
                 </div>
               ) : (
-                <button
-                  className="connect-wallet-btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                  onClick={connectWallet}
-                  disabled={isLoading}
-                >
-                  {isLoading ? '连接中...' : '连接钱包'}
-                </button>
+                  <button
+                    className="connect-wallet-btn text-white font-semibold transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={connectWallet}
+                    disabled={isLoading}
+                  >
+                    <div className="relative flex items-center z-10">
+                      {isLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Connecting...
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse"></div>
+                          Connect Wallet
+                        </>
+                      )}
+                    </div>
+                  </button>
               )}
             </div>
           </div>
         </header>
 
-        {/* 主要内容 */}
+        {/* Main Content */}
         <div className="main-container max-w-7xl mx-auto px-4 py-8">
-          {/* 英雄区 */}
+          {/* Hero Section */}
           <section className="hero">
             <div className="hero-header text-center">
-              <h1 className="text-4xl font-bold">PUMP 代币空投现已上线！</h1>
-              <p className="hero-subtitle text-lg mt-2">加入去中心化金融的未来，领取您的 PUMP 代币。早期支持者专享限时优惠！</p>
+              <h1 className="text-4xl font-bold">PUMP Token Airdrop is Now Live!</h1>
+              <p className="hero-subtitle text-lg mt-2">Join the future of decentralized finance and claim your PUMP tokens. Limited-time offer for early supporters!</p>
             </div>
 
             <div className="hero-content flex flex-col md:flex-row mt-8">
               <div className="hero-left md:w-1/2">
                 <div className="hero-stats bg-white shadow p-6 rounded">
-                  <h3 className="text-xl font-semibold">活动统计</h3>
+                  <h3 className="text-xl font-semibold">Campaign Statistics</h3>
                   <div className="stats-grid grid grid-cols-3 gap-4 mt-4">
                     <div className="stat-item text-center">
                       <div className="stat-number text-2xl font-bold">$2.5M</div>
-                      <div className="stat-label">总空投价值</div>
+                      <div className="stat-label">Total Airdrop Value</div>
                     </div>
                     <div className="stat-item text-center">
                       <div className="stat-number text-2xl font-bold">50K</div>
-                      <div className="stat-label">合格用户</div>
+                      <div className="stat-label">Eligible Users</div>
                     </div>
                     <div className="stat-item text-center">
                       <div className="stat-number text-2xl font-bold">7</div>
-                      <div className="stat-label">剩余天数</div>
+                      <div className="stat-label">Days Remaining</div>
                     </div>
                   </div>
                 </div>
@@ -158,9 +291,9 @@ function App() {
               <div className="airdrop-card md:w-1/2 bg-white shadow p-6 rounded ml-0 md:ml-4 mt-4 md:mt-0">
                 <div className="card-header">
                   <h2 className="text-2xl font-semibold">
-                    <GiftIcon size={24} className="inline mr-2" /> 领取您的 PUMP 代币
+                    <GiftIcon size={24} className="inline mr-2" /> Claim Your PUMP Tokens
                   </h2>
-                  <p>您有资格领取 <span className="highlight font-bold">5,000 PUMP 代币</span></p>
+                  <p>You are eligible to claim <span className="highlight font-bold">5,000 PUMP tokens</span></p>
                 </div>
 
                 <div className="token-info flex items-center mt-4">
@@ -170,114 +303,117 @@ function App() {
                   <div className="token-details ml-4">
                     <div className="token-amount text-xl font-bold">5,000 PUMP</div>
                     <div className="token-value text-gray-600">≈ $250 USD</div>
-                    <div className="token-bonus text-green-500">+ 20% 早期支持者奖励</div>
+                    <div className="token-bonus text-green-500">+ 20% Early Supporter Bonus</div>
                   </div>
                 </div>
 
                 <button
-                  className="claim-button bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded mt-4 w-full"
+                  className="claim-button text-white px-8 py-4 rounded-xl mt-4 w-full font-bold text-lg transition-all duration-300 group"
                   onClick={handleClaim}
                 >
-                  <RocketIcon size={16} className="inline mr-2" />
-                  立即领取
+                  <div className="relative flex items-center justify-center z-10">
+                    <span className="group-hover:tracking-wider transition-all duration-300">Claim Now</span>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full"></div>
+                  </div>
                 </button>
 
                 <div className="timer mt-4 text-center">
-                  <p><ClockIcon size={16} className="inline mr-2" /> 空投结束倒计时: <span id="countdown">07:23:19:45</span></p>
+                  <p><ClockIcon size={16} className="inline mr-2" /> Airdrop Countdown: <span id="countdown">07:23:19:45</span></p>
                 </div>
 
                 <div className="eligibility-check mt-4 text-center">
-                  <p><CheckCircleIcon size={16} className="inline mr-2" /> 资格已验证</p>
-                  <p><ShieldIcon size={16} className="inline mr-2" /> 智能合约已审计</p>
+                  <p><CheckCircleIcon size={16} className="inline mr-2" /> Eligibility Verified</p>
+                  <p><ShieldIcon size={16} className="inline mr-2" /> Smart Contract Audited</p>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* 功能区 */}
+          {/* Features Section */}
           <section className="features mt-12">
-            <h2 className="section-title text-3xl font-bold text-center">为什么选择 PUMP？</h2>
+            <h2 className="section-title text-3xl font-bold text-center">Why Choose PUMP?</h2>
             <div className="features-grid grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
               <div className="feature bg-white shadow p-6 rounded">
                 <div className="feature-icon">
                   <RocketIcon size={32} />
                 </div>
-                <h3 className="text-xl font-semibold mt-2">高性能区块链</h3>
-                <p className="mt-2">基于先进区块链技术，交易速度快，费用低，为您提供最佳用户体验。</p>
+                <h3 className="text-xl font-semibold mt-2">High-Performance Blockchain</h3>
+                <p className="mt-2">Built on advanced blockchain technology with fast transactions, low fees, and optimal user experience.</p>
               </div>
 
               <div className="feature bg-white shadow p-6 rounded">
                 <div className="feature-icon">
                   <ShieldIcon size={32} />
                 </div>
-                <h3 className="text-xl font-semibold mt-2">安全可靠</h3>
-                <p className="mt-2">智能合约经过顶级安全公司审计，配备多重安全机制，确保您的资产安全。</p>
+                <h3 className="text-xl font-semibold mt-2">Secure & Reliable</h3>
+                <p className="mt-2">Smart contracts audited by top security firms with multiple security mechanisms to ensure your asset safety.</p>
               </div>
 
               <div className="feature bg-white shadow p-6 rounded">
                 <div className="feature-icon">
                   <StarIcon size={32} />
                 </div>
-                <h3 className="text-xl font-semibold mt-2">巨大潜力</h3>
-                <p className="mt-2">供应有限且生态系统不断增长，PUMP 具有巨大的增长潜力与投资价值。</p>
+                <h3 className="text-xl font-semibold mt-2">Huge Potential</h3>
+                <p className="mt-2">Limited supply with growing ecosystem, PUMP has tremendous growth potential and investment value.</p>
               </div>
 
               <div className="feature bg-white shadow p-6 rounded">
                 <div className="feature-icon">
                   <ChatIcon size={32} />
                 </div>
-                <h3 className="text-xl font-semibold mt-2">强大社区</h3>
-                <p className="mt-2">由活跃的全球社区支持，持续进行技术创新和生态系统发展。</p>
+                <h3 className="text-xl font-semibold mt-2">Strong Community</h3>
+                <p className="mt-2">Supported by an active global community, continuously driving technological innovation and ecosystem development.</p>
               </div>
 
               <div className="feature bg-white shadow p-6 rounded">
                 <div className="feature-icon">
                   <GlobeIcon size={32} />
                 </div>
-                <h3 className="text-xl font-semibold mt-2">全球覆盖</h3>
-                <p className="mt-2">支持多种语言和地区，为全球用户提供便捷的金融服务。</p>
+                <h3 className="text-xl font-semibold mt-2">Global Coverage</h3>
+                <p className="mt-2">Supporting multiple languages and regions, providing convenient financial services for global users.</p>
               </div>
 
               <div className="feature bg-white shadow p-6 rounded">
                 <div className="feature-icon">
                   <MoneyIcon size={32} />
                 </div>
-                <h3 className="text-xl font-semibold mt-2">稀缺性</h3>
-                <p className="mt-2">有限的总供应量结合通缩机制设计，提供显著的长期持有价值。</p>
+                <h3 className="text-xl font-semibold mt-2">Scarcity</h3>
+                <p className="mt-2">Limited total supply combined with deflationary mechanism design, providing significant long-term holding value.</p>
               </div>
             </div>
           </section>
 
-          {/* 代币经济学区 */}
+          {/* Tokenomics Section */}
           <section className="tokenomics mt-12">
             <h2 className="section-title text-3xl font-bold text-center">
-              <MoneyIcon size={32} className="inline mr-2" /> 代币经济学
+              <MoneyIcon size={32} className="inline mr-2" /> Tokenomics
             </h2>
             <div className="tokenomics-content mt-6">
               <div className="tokenomics-info bg-white shadow p-6 rounded">
                 <div className="info-grid grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="info-item">
-                    <h3 className="font-semibold">总供应量</h3>
+                    <h3 className="font-semibold">Total Supply</h3>
                     <p>100,000,000 PUMP</p>
                   </div>
                   <div className="info-item">
-                    <h3 className="font-semibold">空投分配</h3>
+                    <h3 className="font-semibold">Airdrop Allocation</h3>
                     <p>25% (25,000,000 PUMP)</p>
                   </div>
                   <div className="info-item">
-                    <h3 className="font-semibold">流动性池</h3>
+                    <h3 className="font-semibold">Liquidity Pool</h3>
                     <p>30% (30,000,000 PUMP)</p>
                   </div>
                   <div className="info-item">
-                    <h3 className="font-semibold">生态系统发展</h3>
+                    <h3 className="font-semibold">Ecosystem Development</h3>
                     <p>20% (20,000,000 PUMP)</p>
                   </div>
                   <div className="info-item">
-                    <h3 className="font-semibold">团队储备</h3>
+                    <h3 className="font-semibold">Team Reserve</h3>
                     <p>15% (15,000,000 PUMP)</p>
                   </div>
                   <div className="info-item">
-                    <h3 className="font-semibold">合作伙伴</h3>
+                    <h3 className="font-semibold">Partners</h3>
                     <p>10% (10,000,000 PUMP)</p>
                   </div>
                 </div>
@@ -285,13 +421,13 @@ function App() {
             </div>
           </section>
 
-          {/* 路线图区 */}
+          {/* Roadmap Section */}
           <section className="roadmap mt-12">
             <div className="roadmap-header text-center">
               <h2 className="section-title text-3xl font-bold">
-                <MapIcon size={32} className="inline mr-2" /> 路线图
+                <MapIcon size={32} className="inline mr-2" /> Roadmap
               </h2>
-              <p className="roadmap-subtitle text-lg mt-2">我们革新去中心化金融的旅程</p>
+              <p className="roadmap-subtitle text-lg mt-2">Our journey to revolutionize decentralized finance</p>
             </div>
             <div className="roadmap-timeline mt-6 space-y-8">
               <div className="roadmap-item completed flex">
@@ -302,22 +438,22 @@ function App() {
                 </div>
                 <div className="roadmap-content ml-4 bg-white shadow p-6 rounded">
                   <div className="roadmap-header-content flex justify-between">
-                    <div className="roadmap-date font-semibold">2024年第一季度</div>
-                    <div className="roadmap-status completed-status bg-green-100 text-green-600 px-2 py-1 rounded">已完成</div>
+                    <div className="roadmap-date font-semibold">Q1 2024</div>
+                    <div className="roadmap-status completed-status bg-green-100 text-green-600 px-2 py-1 rounded">Completed</div>
                   </div>
-                  <h3 className="text-xl font-semibold mt-2">项目启动</h3>
+                  <h3 className="text-xl font-semibold mt-2">Project Launch</h3>
                   <div className="roadmap-features mt-2">
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                      <span>智能合约开发完成</span>
+                      <span>Smart Contract Development Complete</span>
                     </div>
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                      <span>通过安全审计</span>
+                      <span>Security Audit Passed</span>
                     </div>
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                      <span>社区建设开始</span>
+                      <span>Community Building Started</span>
                     </div>
                   </div>
                 </div>
@@ -331,22 +467,22 @@ function App() {
                 </div>
                 <div className="roadmap-content ml-4 bg-white shadow p-6 rounded">
                   <div className="roadmap-header-content flex justify-between">
-                    <div className="roadmap-date font-semibold">2024年第二季度</div>
-                    <div className="roadmap-status current-status bg-blue-100 text-blue-600 px-2 py-1 rounded">进行中</div>
+                    <div className="roadmap-date font-semibold">Q2 2024</div>
+                    <div className="roadmap-status current-status bg-blue-100 text-blue-600 px-2 py-1 rounded">In Progress</div>
                   </div>
-                  <h3 className="text-xl font-semibold mt-2">空投活动</h3>
+                  <h3 className="text-xl font-semibold mt-2">Airdrop Campaign</h3>
                   <div className="roadmap-features mt-2">
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                      <span>空投活动启动</span>
+                      <span>Airdrop Campaign Launch</span>
                     </div>
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                      <span>代币分发</span>
+                      <span>Token Distribution</span>
                     </div>
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                      <span>交易所上市申请</span>
+                      <span>Exchange Listing Applications</span>
                     </div>
                   </div>
                 </div>
@@ -360,22 +496,22 @@ function App() {
                 </div>
                 <div className="roadmap-content ml-4 bg-white shadow p-6 rounded">
                   <div className="roadmap-header-content flex justify-between">
-                    <div className="roadmap-date font-semibold">2024年第三季度</div>
-                    <div className="roadmap-status upcoming-status bg-gray-100 text-gray-600 px-2 py-1 rounded">即将推出</div>
+                    <div className="roadmap-date font-semibold">Q3 2024</div>
+                    <div className="roadmap-status upcoming-status bg-gray-100 text-gray-600 px-2 py-1 rounded">Coming Soon</div>
                   </div>
-                  <h3 className="text-xl font-semibold mt-2">生态系统扩展</h3>
+                  <h3 className="text-xl font-semibold mt-2">Ecosystem Expansion</h3>
                   <div className="roadmap-features mt-2">
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
-                      <span>DeFi 协议整合</span>
+                      <span>DeFi Protocol Integration</span>
                     </div>
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
-                      <span>NFT 市场开发</span>
+                      <span>NFT Marketplace Development</span>
                     </div>
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
-                      <span>跨链桥接</span>
+                      <span>Cross-Chain Bridge</span>
                     </div>
                   </div>
                 </div>
@@ -389,22 +525,22 @@ function App() {
                 </div>
                 <div className="roadmap-content ml-4 bg-white shadow p-6 rounded">
                   <div className="roadmap-header-content flex justify-between">
-                    <div className="roadmap-date font-semibold">2024年第四季度</div>
-                    <div className="roadmap-status upcoming-status bg-gray-100 text-gray-600 px-2 py-1 rounded">即将推出</div>
+                    <div className="roadmap-date font-semibold">Q4 2024</div>
+                    <div className="roadmap-status upcoming-status bg-gray-100 text-gray-600 px-2 py-1 rounded">Coming Soon</div>
                   </div>
-                  <h3 className="text-xl font-semibold mt-2">全球扩展</h3>
+                  <h3 className="text-xl font-semibold mt-2">Global Expansion</h3>
                   <div className="roadmap-features mt-2">
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
-                      <span>主要交易所上市</span>
+                      <span>Major Exchange Listings</span>
                     </div>
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
-                      <span>机构合作伙伴关系</span>
+                      <span>Institutional Partnerships</span>
                     </div>
                     <div className="feature-item flex items-center">
                       <div className="feature-dot w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
-                      <span>移动应用发布</span>
+                      <span>Mobile App Launch</span>
                     </div>
                   </div>
                 </div>
@@ -412,73 +548,73 @@ function App() {
             </div>
           </section>
 
-          {/* 常见问题区 */}
+          {/* FAQ Section */}
           <section className="faq mt-12">
             <h2 className="section-title text-3xl font-bold text-center">
-              <QuestionIcon size={32} className="inline mr-2" /> 常见问题
+              <QuestionIcon size={32} className="inline mr-2" /> FAQ
             </h2>
             <div className="faq-list mt-6 space-y-4">
               <div className="faq-item bg-white shadow p-4 rounded">
                 <div className="faq-question flex justify-between items-center">
-                  <h3 className="font-semibold">如何参与 PUMP 空投？</h3>
+                  <h3 className="font-semibold">How to participate in PUMP airdrop?</h3>
                   <i className="fas fa-chevron-down"></i>
                 </div>
                 <div className="faq-answer mt-2">
-                  <p>只需连接您的钱包，验证身份，然后点击“立即领取”按钮。整个过程简单快捷，无需费用。</p>
+                  <p>Simply connect your wallet, verify your identity, and click the "Claim Now" button. The entire process is simple and fast, with no fees required.</p>
                 </div>
               </div>
 
               <div className="faq-item bg-white shadow p-4 rounded">
                 <div className="faq-question flex justify-between items-center">
-                  <h3 className="font-semibold">空投代币何时到账？</h3>
+                  <h3 className="font-semibold">When will airdrop tokens arrive?</h3>
                   <i className="fas fa-chevron-down"></i>
                 </div>
                 <div className="faq-answer mt-2">
-                  <p>代币将在成功领取后的 24-48 小时内自动转入您的钱包地址。您可以在区块链浏览器上查看交易状态。</p>
+                  <p>Tokens will be automatically transferred to your wallet address within 24-48 hours after successful claiming. You can check transaction status on the blockchain explorer.</p>
                 </div>
               </div>
 
               <div className="faq-item bg-white shadow p-4 rounded">
                 <div className="faq-question flex justify-between items-center">
-                  <h3 className="font-semibold">需要支付 Gas 费用吗？</h3>
+                  <h3 className="font-semibold">Do I need to pay gas fees?</h3>
                   <i className="fas fa-chevron-down"></i>
                 </div>
                 <div className="faq-answer mt-2">
-                  <p>领取代币是免费的，但您需要支付少量的 Gas 费用来完成区块链交易。建议在网络拥堵较低时操作。</p>
+                  <p>Claiming tokens is free, but you need to pay a small gas fee to complete the blockchain transaction. We recommend operating when network congestion is low.</p>
                 </div>
               </div>
 
               <div className="faq-item bg-white shadow p-4 rounded">
                 <div className="faq-question flex justify-between items-center">
-                  <h3 className="font-semibold">空投活动持续多久？</h3>
+                  <h3 className="font-semibold">How long does the airdrop last?</h3>
                   <i className="fas fa-chevron-down"></i>
                 </div>
                 <div className="faq-answer mt-2">
-                  <p>空投活动将持续 30 天，或直到所有代币分发完毕。建议尽早参与，因为早期参与者可获得额外奖励。</p>
+                  <p>The airdrop campaign will last for 30 days, or until all tokens are distributed. We recommend participating early as early participants receive additional rewards.</p>
                 </div>
               </div>
 
               <div className="faq-item bg-white shadow p-4 rounded">
                 <div className="faq-question flex justify-between items-center">
-                  <h3 className="font-semibold">如何确保安全？</h3>
+                  <h3 className="font-semibold">How to ensure security?</h3>
                   <i className="fas fa-chevron-down"></i>
                 </div>
                 <div className="faq-answer mt-2">
-                  <p>我们的智能合约已由顶级安全公司审计，所有代码开源可验证。请仅通过官方渠道参与，勿点击任何可疑链接。</p>
+                  <p>Our smart contracts have been audited by top security firms, and all code is open source and verifiable. Please only participate through official channels and avoid clicking any suspicious links.</p>
                 </div>
               </div>
             </div>
           </section>
         </div>
 
-        {/* 页脚 */}
+        {/* Footer */}
         <footer className="bg-gray-900 text-white py-8">
           <div className="footer-content max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="footer-section">
               <div className="footer-logo text-2xl font-bold">
                 <span>PUMP</span>
               </div>
-              <p className="mt-2">打造去中心化金融的未来，让每个人都能享受区块链技术带来的便利。</p>
+              <p className="mt-2">Building the future of decentralized finance, making blockchain technology accessible to everyone.</p>
               <div className="social-links flex space-x-4 mt-4">
                 <a href="#" className="social-link text-gray-400 hover:text-white"><i className="fab fa-twitter"></i></a>
                 <a href="#" className="social-link text-gray-400 hover:text-white"><i className="fab fa-telegram"></i></a>
@@ -488,49 +624,48 @@ function App() {
             </div>
 
             <div className="footer-section">
-              <h3 className="text-lg font-semibold">快速链接</h3>
+              <h3 className="text-lg font-semibold">Quick Links</h3>
               <ul className="mt-2 space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white">首页</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">关于我们</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">代币经济学</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">路线图</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">白皮书</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Home</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">About Us</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Tokenomics</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Roadmap</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Whitepaper</a></li>
               </ul>
             </div>
 
             <div className="footer-section">
-              <h3 className="text-lg font-semibold">支持</h3>
+              <h3 className="text-lg font-semibold">Support</h3>
               <ul className="mt-2 space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white">帮助中心</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">常见问题</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">联系我们</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">安全审计</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">错误报告</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Help Center</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">FAQ</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Contact Us</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Security Audit</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Bug Report</a></li>
               </ul>
             </div>
 
             <div className="footer-section">
-              <h3 className="text-lg font-semibold">法律</h3>
+              <h3 className="text-lg font-semibold">Legal</h3>
               <ul className="mt-2 space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white">隐私政策</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">服务条款</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">免责声明</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">风险警告</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Terms of Service</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Disclaimer</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Risk Warning</a></li>
               </ul>
             </div>
           </div>
 
           <div className="footer-bottom mt-8 text-center">
             <div className="footer-links flex justify-center space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white">隐私政策</a>
-              <a href="#" className="text-gray-400 hover:text-white">服务条款</a>
-              <a href="#" className="text-gray-400 hover:text-white">联系我们</a>
+              <a href="#" className="text-gray-400 hover:text-white">Privacy Policy</a>
+              <a href="#" className="text-gray-400 hover:text-white">Terms of Service</a>
+              <a href="#" className="text-gray-400 hover:text-white">Contact Us</a>
             </div>
-            <p className="copyright mt-2">© 2024 PUMP Token. 保留所有权利。</p>
+            <p className="copyright mt-2">© 2024 PUMP Token. All rights reserved.</p>
           </div>
         </footer>
-      </>
-    </WagmiProvider>
+    </>
   );
 }
 
