@@ -6,7 +6,7 @@ import './index.css'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import App from './App.jsx'
 import ErrorBoundary from './ErrorBoundary.jsx'
-import { wallets, network, endpoint } from './appkit-config'
+import { wallets, endpoint } from './appkit-config'
 
 // 导入钱包适配器样式
 import '@solana/wallet-adapter-react-ui/styles.css'

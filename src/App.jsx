@@ -3,7 +3,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { RocketIcon, GiftIcon, StarIcon, MoneyIcon, MapIcon, ChatIcon, QuestionIcon, ClockIcon, ShieldIcon, CheckCircleIcon, CompletedIcon, RocketLaunchIcon, ClockUpcomingIcon, GlobeIcon } from './components/Icons';
-import './appkit-config';
+import { appKit } from './appkit-config';
+import { AccountController } from '@reown/appkit';
 import './index.css'
 
 
@@ -12,20 +13,40 @@ function App() {
   const { publicKey, connected, disconnect } = useWallet();
   const { setVisible } = useWalletModal();
   
-  // Get address and connection status
+  // Get address and connection status (from wallet-adapter and Reown AppKit)
   const address = publicKey?.toString();
   const isConnected = connected;
+  const [appKitConnected, setAppKitConnected] = useState(false);
+  const [appKitAddress, setAppKitAddress] = useState('');
   const [balance, setBalance] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  // Subscribe to Reown AppKit account changes
+  useEffect(() => {
+    const unsubStatus = AccountController.subscribeKey('status', (status) => {
+      setAppKitConnected(status === 'connected');
+    }, 'solana');
+    const unsubAddress = AccountController.subscribeKey('address', (addr) => {
+      setAppKitAddress(addr || '');
+    }, 'solana');
+    return () => {
+      if (typeof unsubStatus === 'function') unsubStatus();
+      if (typeof unsubAddress === 'function') unsubAddress();
+    };
+  }, []);
+
+  // Determine display address/connection
+  const effectiveConnected = isConnected || appKitConnected;
+  const effectiveAddress = address || appKitAddress || '';
+
   // Update balance when address changes
   useEffect(() => {
     const updateBalance = async () => {
-      if (!address) return;
+      if (!effectiveAddress) return;
       try {
         setIsLoading(true);
         const connection = new Connection(clusterApiUrl('mainnet-beta'));
-        const publicKey = new PublicKey(address);
+        const publicKey = new PublicKey(effectiveAddress);
         const balance = await connection.getBalance(publicKey);
         setBalance(balance / LAMPORTS_PER_SOL);
       } catch (error) {
@@ -35,21 +56,21 @@ function App() {
       }
     };
 
-    if (isConnected && address) {
+    if (effectiveConnected && effectiveAddress) {
       updateBalance();
     } else {
       setBalance(0);
     }
-  }, [address, isConnected]);
+  }, [effectiveAddress, effectiveConnected]);
 
   // 监听钱包连接状态变化，恢复页面样式
   useEffect(() => {
-    if (isConnected) {
+    if (effectiveConnected) {
       // 钱包连接成功后恢复页面样式
       document.body.style.paddingRight = '';
       document.body.style.overflow = '';
     }
-  }, [isConnected]);
+  }, [effectiveConnected]);
 
   // 监听弹框关闭，恢复页面样式
   useEffect(() => {
@@ -128,12 +149,19 @@ function App() {
   const connectWallet = async () => {
     try {
       setIsLoading(true);
-      // 防止页面跳动
-      document.body.style.paddingRight = window.innerWidth - document.documentElement.clientWidth + 'px';
-      document.body.style.overflow = 'hidden';
-      setVisible(true);
+      // 优先使用 Reown AppKit 弹窗
+      if (appKit && typeof appKit.open === 'function') {
+        await appKit.open();
+      } else if (appKit && typeof appKit.openModal === 'function') {
+        await appKit.openModal();
+      } else {
+        // 兼容旧钱包弹窗
+        document.body.style.paddingRight = window.innerWidth - document.documentElement.clientWidth + 'px';
+        document.body.style.overflow = 'hidden';
+        setVisible(true);
+      }
       
-      // 确保弹框居中显示
+      // 旧弹窗样式兼容
       setTimeout(() => {
         const modalWrapper = document.querySelector('.wallet-adapter-modal-wrapper') || 
                            document.querySelector('.wallet-adapter-modal-container') ||
@@ -168,7 +196,11 @@ function App() {
     const confirmed = window.confirm('Are you sure you want to disconnect your wallet?');
     if (confirmed) {
       try {
-        await disconnect();
+        if (appKit && typeof appKit.disconnect === 'function') {
+          await appKit.disconnect();
+        } else {
+          await disconnect();
+        }
         setIsSubmitted(false);
       } catch (error) {
         console.error('Wallet disconnection error:', error);
@@ -193,13 +225,18 @@ function App() {
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
 
+  // Header theme based on connection
+  const headerClasses = effectiveConnected
+    ? "w-full bg-red-100 text-gray-900 py-4"
+    : "w-full bg-gray-900 text-white py-4";
+
   return (
     <>
       {/* Particle Background */}
       <div id="particles-js"></div>
 
         {/* Header */}
-        <header className="w-full bg-gray-900 text-white py-4">
+        <header className={headerClasses}>
           <div className="header-content max-w-7xl mx-auto flex justify-between items-center px-4">
             <div className="logo flex items-center">
               <div className="logo-icon">
@@ -220,7 +257,7 @@ function App() {
 
             <div className="wallet-connector flex items-center space-x-4">
               
-              {isConnected ? (
+              {effectiveConnected ? (
                 <div className="wallet-info flex items-center space-x-4">
                   <span className="balance bg-gray-700 px-3 py-1 rounded">{balance.toFixed(2)} PUMP</span>
                   <button
@@ -229,7 +266,7 @@ function App() {
                   >
                     <div className="relative flex items-center z-10">
                       <div className="w-2 h-2 bg-white rounded-full mr-2 group-hover:animate-pulse"></div>
-                      {shortenAddress(address)}
+                      {shortenAddress(effectiveAddress)}
                     </div>
                   </button>
                 </div>
