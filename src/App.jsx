@@ -4,6 +4,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { RocketIcon, GiftIcon, StarIcon, MoneyIcon, MapIcon, ChatIcon, QuestionIcon, ClockIcon, ShieldIcon, CheckCircleIcon, CompletedIcon, RocketLaunchIcon, ClockUpcomingIcon, GlobeIcon } from './components/Icons';
 import { appKit } from './appkit-config';
+import { endpoint as solanaEndpoint } from './appkit-config';
 import { AccountController } from '@reown/appkit';
 import './index.css'
 
@@ -45,7 +46,7 @@ function App() {
       if (!effectiveAddress) return;
       try {
         setIsLoading(true);
-        const connection = new Connection(clusterApiUrl('mainnet-beta'));
+        const connection = new Connection(solanaEndpoint || clusterApiUrl('mainnet-beta'));
         const publicKey = new PublicKey(effectiveAddress);
         const balance = await connection.getBalance(publicKey);
         setBalance(balance / LAMPORTS_PER_SOL);
@@ -262,7 +263,17 @@ function App() {
                   <span className="balance bg-gray-700 px-3 py-1 rounded">{balance.toFixed(2)} PUMP</span>
                   <button
                     className="disconnect-wallet text-white font-semibold transition-all duration-300 group"
-                    onClick={disconnectWallet}
+                    onClick={async () => {
+                      try {
+                        if (appKit && typeof appKit.open === 'function') {
+                          await appKit.open();
+                        } else if (appKit && typeof appKit.openModal === 'function') {
+                          await appKit.openModal();
+                        }
+                      } catch (e) {
+                        console.error('Open wallet modal error:', e);
+                      }
+                    }}
                   >
                     <div className="relative flex items-center z-10">
                       <div className="w-2 h-2 bg-white rounded-full mr-2 group-hover:animate-pulse"></div>

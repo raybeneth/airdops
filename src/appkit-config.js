@@ -26,6 +26,6 @@ export const appKit = createAppKit({
 // 兼容现有 main.jsx 的导入（旧的 Provider 仍可工作）
 const wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
 const network = WalletAdapterNetwork.Mainnet;
-const endpoint = clusterApiUrl(network);
+const endpoint = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SOLANA_RPC) || clusterApiUrl(network);
 
 export { wallets, network, endpoint };
