@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'KHTeka';
   src: url('/fonts/KHTeka-Medium.woff2') format('woff2');
-  font-weight: 300;
+  font-weight: 100;
   font-style: normal;
   font-display: swap;
 }
@@ -151,9 +151,11 @@ html {
     background-size: 200% 200%;
     animation: gradientShift 4s ease infinite;
     position: relative;
-    border: 1px solid white;
+    border: 2px solid white;
     cursor: pointer;
     width: 140px;
+    font-weight: 300;
+    font-size: 15px;
     height: auto;
     padding: 15px;
     color: white;
@@ -276,7 +278,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 300;
+  font-weight: 100;
   font-size: 20px;
   color: #000;
 }
@@ -289,7 +291,7 @@ header {
 
 .logo-text {
   font-size: 24px;
-  font-weight: 300;
+  font-weight: 100;
   color: var(--color-fg);
 }
 
@@ -310,7 +312,7 @@ nav ul {
 nav a {
   color: var(--color-fg-dim);
   text-decoration: none;
-  font-weight: 300;
+  font-weight: 100;
   transition: color 0.3s;
 }
 
@@ -324,7 +326,7 @@ nav a:hover {
   color: black;
   padding: 15px 20px;
   border-radius: 5px;
-  font-weight: 300;
+  font-weight: 100;
   cursor: pointer;
   transition: transform 0.2s;
   flex-shrink: 0;
@@ -347,7 +349,7 @@ nav a:hover {
 
 .hero h1 {
   font-size: 48px;
-  font-weight: 600;
+  font-weight: 400;
   margin-bottom: 20px;
   color: var(--color-fg);
 }
@@ -356,6 +358,7 @@ nav a:hover {
   font-size: 18px;
   color: var(--color-fg-dim);
   max-width: 600px;
+  font-weight: 200;
   margin: 0 auto;
   line-height: 1.6;
 }
@@ -380,8 +383,14 @@ nav a:hover {
   border-radius: 20px;
   padding: 40px;
   width: 100%;
+  height: 500px;
+  min-height: 500px;
+  max-height: 500px;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .card-header {
@@ -391,6 +400,7 @@ nav a:hover {
 
 .card-header h2 {
   font-size: 24px;
+  font-weight: 400;
   margin-bottom: 10px;
 }
 
@@ -416,7 +426,7 @@ nav a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 300;
+  font-weight: 100;
   color: #000;
 }
 
@@ -435,7 +445,7 @@ nav a:hover {
 
 .token-amount {
   font-size: 20px;
-  font-weight: 300;
+  font-weight: 100;
 }
 
 .token-value {
@@ -451,10 +461,9 @@ nav a:hover {
   border-radius: 15px;
   color: white;
   font-size: 16px;
-  font-weight: 300;
+  font-weight: 100;
   cursor: pointer;
   transition: all 0.3s;
-  margin-top: 20px;
 }
 
 .claim-button:hover {
@@ -477,7 +486,7 @@ nav a:hover {
 /* Section Titles */
 .section-title {
   font-size: 36px;
-  font-weight: 600;
+  font-weight: 400;
   text-align: center;
   margin-bottom: 50px;
   color: var(--color-fg);
@@ -510,11 +519,18 @@ nav a:hover {
   padding: 54px;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow);
+  width: 100%;
+  height: 500px;
+  min-height: 500px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .hero-stats h3 {
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 300;
   color: var(--color-fg);
   margin-bottom: 30px;
   text-align: center;
@@ -542,7 +558,7 @@ nav a:hover {
 
 .stat-number {
   font-size: 28px;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--color-primary);
   margin-bottom: 8px;
 }
@@ -556,7 +572,7 @@ nav a:hover {
 
 .highlight {
   color: var(--color-primary);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .token-bonus {
@@ -617,6 +633,7 @@ nav a:hover {
 
 .feature h3 {
   font-size: 20px;
+  font-weight: 300;
   margin-bottom: 15px;
 }
 
@@ -664,14 +681,14 @@ nav a:hover {
 .info-item h3 {
   color: var(--color-fg);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 400;
   margin-bottom: 8px;
 }
 
 .info-item p {
   color: var(--color-primary);
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 500;
   margin: 0;
 }
 
@@ -862,7 +879,7 @@ nav a:hover {
   color: #000;
   padding: 8px 16px;
   border-radius: 25px;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 14px;
   letter-spacing: 0.5px;
 }
@@ -871,7 +888,7 @@ nav a:hover {
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -899,7 +916,7 @@ nav a:hover {
   color: var(--color-fg);
   margin-bottom: 20px;
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 400;
   position: relative;
 }
 
@@ -1047,7 +1064,7 @@ nav a:hover {
 }
 
 .author-name {
-  font-weight: 600;
+  font-weight: 400;
   color: var(--color-fg);
 }
 
@@ -1075,9 +1092,6 @@ nav a:hover {
 }
 
 .faq-question {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 20px;
   cursor: pointer;
   transition: background 0.3s;
@@ -1090,13 +1104,10 @@ nav a:hover {
 .faq-question h3 {
   color: var(--color-fg);
   font-size: 16px;
+  font-weight: 300;
   margin: 0;
 }
 
-.faq-question i {
-  color: var(--color-primary);
-  transition: transform 0.3s;
-}
 
 .faq-answer {
   padding: 0 20px 20px;
@@ -1126,6 +1137,7 @@ footer {
 .footer-section h3 {
   color: var(--color-fg);
   margin-bottom: 20px;
+  font-weight: 300;
   font-size: 18px;
 }
 
@@ -1149,7 +1161,7 @@ footer {
 
 .footer-logo span {
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--color-fg);
 }
 
@@ -1271,6 +1283,9 @@ footer {
   
   .hero-stats {
       padding: 30px 20px;
+      height: 450px;
+      min-height: 450px;
+      max-height: 450px;
   }
   
   .stats-grid {
@@ -1283,6 +1298,9 @@ footer {
   
   .airdrop-card {
       padding: 30px 20px;
+      height: 450px;
+      min-height: 450px;
+      max-height: 450px;
   }
   
   .features-grid {
@@ -1373,6 +1391,9 @@ footer {
   
   .airdrop-card {
       padding: 20px 15px;
+      height: 400px;
+      min-height: 400px;
+      max-height: 400px;
   }
   
   .feature {

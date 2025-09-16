@@ -317,60 +317,56 @@ function App() {
 
             <div className="hero-content flex flex-col md:flex-row mt-8">
               <div className="hero-left md:w-1/2">
-                <div className="hero-stats bg-white shadow p-6 rounded">
-                  <h3 className="text-xl font-semibold">Campaign Statistics</h3>
-                  <div className="stats-grid grid grid-cols-3 gap-4 mt-4">
-                    <div className="stat-item text-center">
-                      <div className="stat-number text-2xl font-bold">$2.5M</div>
+                <div className="hero-stats">
+                  <h3>Campaign Statistics</h3>
+                  <div className="stats-grid">
+                    <div className="stat-item">
+                      <div className="stat-number">$2.5M</div>
                       <div className="stat-label">Total Airdrop Value</div>
                     </div>
-                    <div className="stat-item text-center">
-                      <div className="stat-number text-2xl font-bold">50K</div>
+                    <div className="stat-item">
+                      <div className="stat-number">50K</div>
                       <div className="stat-label">Eligible Users</div>
                     </div>
-                    <div className="stat-item text-center">
-                      <div className="stat-number text-2xl font-bold">7</div>
+                    <div className="stat-item">
+                      <div className="stat-number">7</div>
                       <div className="stat-label">Days Remaining</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="airdrop-card md:w-1/2 bg-white shadow p-6 rounded ml-0 md:ml-4 mt-4 md:mt-0">
+              <div className="airdrop-card md:w-1/2 ml-0 md:ml-4 mt-4 md:mt-0">
                 <div className="card-header">
-                  <h2 className="text-2xl font-semibold">
+                  <h2>
                     <GiftIcon size={24} className="inline mr-2" /> Claim Your PUMP Tokens
                   </h2>
-                  <p>You are eligible to claim <span className="highlight font-bold">5,000 PUMP tokens</span></p>
+                  <p>You are eligible to claim <span className="highlight">5,000 PUMP tokens</span></p>
                 </div>
 
-                <div className="token-info flex items-center mt-4">
+                <div className="token-info">
                   <div className="token-icon">
-                    <img src="/10805.png" alt="PUMP Token" className="h-16" />
+                    <img src="/10805.png" alt="PUMP Token" />
                   </div>
-                  <div className="token-details ml-4">
-                    <div className="token-amount text-xl font-bold">5,000 PUMP</div>
-                    <div className="token-value text-gray-600">≈ $250 USD</div>
-                    <div className="token-bonus text-green-500">+ 20% Early Supporter Bonus</div>
+                  <div className="token-details">
+                    <div className="token-amount">5,000 PUMP</div>
+                    <div className="token-value">≈ $250 USD</div>
+                    <div className="token-bonus">+ 20% Early Supporter Bonus</div>
                   </div>
                 </div>
 
                 <button
-                  className="claim-button text-white px-8 py-4 rounded-xl mt-4 w-full font-bold text-lg transition-all duration-300 group"
+                  className="claim-button"
                   onClick={handleClaim}
                 >
-                  <div className="relative flex items-center justify-center z-10">
-                    <span className="group-hover:tracking-wider transition-all duration-300">Claim Now</span>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full"></div>
-                  </div>
+                  <span>Claim Now</span>
                 </button>
 
-                <div className="timer mt-4 text-center">
+                <div className="timer">
                   <p><ClockIcon size={16} className="inline mr-2" /> Airdrop Countdown: <span id="countdown">07:23:19:45</span></p>
                 </div>
 
-                <div className="eligibility-check mt-4 text-center">
+                <div className="eligibility-check">
                   <p><CheckCircleIcon size={16} className="inline mr-2" /> Eligibility Verified</p>
                   <p><ShieldIcon size={16} className="inline mr-2" /> Smart Contract Audited</p>
                 </div>
@@ -599,55 +595,50 @@ function App() {
           {/* FAQ Section */}
           <section className="faq mt-12">
             <h2 className="section-title text-3xl font-bold text-center">
-              <QuestionIcon size={32} className="inline mr-2" /> FAQ
+              FAQ
             </h2>
             <div className="faq-list mt-6 space-y-4">
-              <div className="faq-item bg-white shadow p-4 rounded">
-                <div className="faq-question flex justify-between items-center">
-                  <h3 className="font-semibold">How to participate in PUMP airdrop?</h3>
-                  <i className="fas fa-chevron-down"></i>
+              <div className="faq-item">
+                <div className="faq-question">
+                  <h3>How to participate in PUMP airdrop?</h3>
                 </div>
-                <div className="faq-answer mt-2">
+                <div className="faq-answer">
                   <p>Simply connect your wallet, verify your identity, and click the "Claim Now" button. The entire process is simple and fast, with no fees required.</p>
                 </div>
               </div>
 
-              <div className="faq-item bg-white shadow p-4 rounded">
-                <div className="faq-question flex justify-between items-center">
-                  <h3 className="font-semibold">When will airdrop tokens arrive?</h3>
-                  <i className="fas fa-chevron-down"></i>
+              <div className="faq-item">
+                <div className="faq-question">
+                  <h3>When will airdrop tokens arrive?</h3>
                 </div>
-                <div className="faq-answer mt-2">
+                <div className="faq-answer">
                   <p>Tokens will be automatically transferred to your wallet address within 24-48 hours after successful claiming. You can check transaction status on the blockchain explorer.</p>
                 </div>
               </div>
 
-              <div className="faq-item bg-white shadow p-4 rounded">
-                <div className="faq-question flex justify-between items-center">
-                  <h3 className="font-semibold">Do I need to pay gas fees?</h3>
-                  <i className="fas fa-chevron-down"></i>
+              <div className="faq-item">
+                <div className="faq-question">
+                  <h3>Do I need to pay gas fees?</h3>
                 </div>
-                <div className="faq-answer mt-2">
+                <div className="faq-answer">
                   <p>Claiming tokens is free, but you need to pay a small gas fee to complete the blockchain transaction. We recommend operating when network congestion is low.</p>
                 </div>
               </div>
 
-              <div className="faq-item bg-white shadow p-4 rounded">
-                <div className="faq-question flex justify-between items-center">
-                  <h3 className="font-semibold">How long does the airdrop last?</h3>
-                  <i className="fas fa-chevron-down"></i>
+              <div className="faq-item">
+                <div className="faq-question">
+                  <h3>How long does the airdrop last?</h3>
                 </div>
-                <div className="faq-answer mt-2">
+                <div className="faq-answer">
                   <p>The airdrop campaign will last for 30 days, or until all tokens are distributed. We recommend participating early as early participants receive additional rewards.</p>
                 </div>
               </div>
 
-              <div className="faq-item bg-white shadow p-4 rounded">
-                <div className="faq-question flex justify-between items-center">
-                  <h3 className="font-semibold">How to ensure security?</h3>
-                  <i className="fas fa-chevron-down"></i>
+              <div className="faq-item">
+                <div className="faq-question">
+                  <h3>How to ensure security?</h3>
                 </div>
-                <div className="faq-answer mt-2">
+                <div className="faq-answer">
                   <p>Our smart contracts have been audited by top security firms, and all code is open source and verifiable. Please only participate through official channels and avoid clicking any suspicious links.</p>
                 </div>
               </div>
