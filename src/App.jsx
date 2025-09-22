@@ -237,7 +237,7 @@ function App() {
       <div id="particles-js"></div>
 
         {/* Header */}
-        <header className={headerClasses}>
+        <header className={`${headerClasses} app-header`}>
           <div className="header-content max-w-7xl mx-auto flex justify-between items-center px-4">
             <div className="logo flex items-center">
               <div className="logo-icon">
@@ -246,21 +246,24 @@ function App() {
               <div className="logo-text ml-2 text-2xl font-bold">pump.fun</div>
             </div>
 
-            <nav>
+            {/* Desktop nav (hidden on mobile via CSS) */}
+            <nav className="primary-nav">
               <ul className="flex space-x-6">
-                <li><a href="#" className="hover:text-blue-400">Home</a></li>
-                <li><a href="#" className="hover:text-blue-400">About</a></li>
-                <li><a href="#" className="hover:text-blue-400">Tokenomics</a></li>
-                <li><a href="#" className="hover:text-blue-400">Roadmap</a></li>
-                <li><a href="#" className="hover:text-blue-400">FAQ</a></li>
+                <li><a href="#hero" className="hover:text-blue-400">Home</a></li>
+                <li><a href="#features" className="hover:text-blue-400">Why pump</a></li>
+                <li><a href="#tokenomics" className="hover:text-blue-400">Tokenomics</a></li>
+                <li><a href="#roadmap" className="hover:text-blue-400">Roadmap</a></li>
+                <li><a href="#faq" className="hover:text-blue-400">FAQ</a></li>
               </ul>
             </nav>
 
-            <div className="wallet-connector flex items-center space-x-4">
+            {/* Right side: connect (stick to right on mobile as well) */}
+            <div className="flex items-center space-x-3 ml-auto">
+              <div className="wallet-connector flex items-center space-x-4">
               
               {effectiveConnected ? (
                 <div className="wallet-info flex items-center space-x-4">
-                  <span className="balance bg-gray-700 px-3 py-1 rounded">{balance.toFixed(2)} PUMP</span>
+                  <span className="balance bg-gray-700 px-3 py-1 rounded hidden md:inline-block">{balance.toFixed(2)} PUMP</span>
                   <button
                     className="disconnect-wallet text-white font-semibold transition-all duration-300 group"
                     onClick={async () => {
@@ -302,21 +305,25 @@ function App() {
                     </div>
                   </button>
               )}
+              </div>
+
+              {/* Mobile: no menu toggle */}
             </div>
           </div>
+
         </header>
 
         {/* Main Content */}
         <div className="main-container max-w-7xl mx-auto px-4 py-8">
           {/* Hero Section */}
-          <section className="hero">
+          <section id="hero" className="hero">
             <div className="hero-header text-center">
               <h1 className="text-4xl font-bold">PUMP Token Airdrop is Now Live!</h1>
               <p className="hero-subtitle text-lg mt-2">Join the future of decentralized finance and claim your PUMP tokens. Limited-time offer for early supporters!</p>
             </div>
 
             <div className="hero-content flex flex-col md:flex-row mt-8">
-              <div className="hero-left md:w-1/2">
+              <div className="hero-left md:w-1/2 order-2 md:order-1">
                 <div className="hero-stats bg-white shadow p-6 rounded">
                   <h3 className="text-xl font-semibold">Campaign Statistics</h3>
                   <div className="stats-grid grid grid-cols-3 gap-4 mt-4">
@@ -336,7 +343,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="airdrop-card md:w-1/2 bg-white shadow p-6 rounded ml-0 md:ml-4 mt-4 md:mt-0">
+              <div className="airdrop-card md:w-1/2 bg-white shadow p-6 rounded ml-0 md:ml-4 mt-4 md:mt-0 order-1 md:order-2">
                 <div className="card-header">
                   <h2 className="text-2xl font-semibold">
                     <GiftIcon size={24} className="inline mr-2" /> Claim Your PUMP Tokens
@@ -379,7 +386,7 @@ function App() {
           </section>
 
           {/* Features Section */}
-          <section className="features mt-12">
+          <section id="features" className="features mt-12">
             <h2 className="section-title text-3xl font-bold text-center">Why Choose PUMP?</h2>
             <div className="features-grid grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
               <div className="feature bg-white shadow p-6 rounded">
@@ -433,7 +440,7 @@ function App() {
           </section>
 
           {/* Tokenomics Section */}
-          <section className="tokenomics mt-12">
+          <section id="tokenomics" className="tokenomics mt-12">
             <h2 className="section-title text-3xl font-bold text-center">
               <MoneyIcon size={32} className="inline mr-2" /> Tokenomics
             </h2>
@@ -470,7 +477,7 @@ function App() {
           </section>
 
           {/* Roadmap Section */}
-          <section className="roadmap mt-12">
+          <section id="roadmap" className="roadmap mt-12">
             <div className="roadmap-header text-center">
               <h2 className="section-title text-3xl font-bold">
                 <MapIcon size={32} className="inline mr-2" /> Roadmap
@@ -597,7 +604,7 @@ function App() {
           </section>
 
           {/* FAQ Section */}
-          <section className="faq mt-12">
+          <section id="faq" className="faq mt-12">
             <h2 className="section-title text-3xl font-bold text-center">
               <QuestionIcon size={32} className="inline mr-2" /> FAQ
             </h2>
